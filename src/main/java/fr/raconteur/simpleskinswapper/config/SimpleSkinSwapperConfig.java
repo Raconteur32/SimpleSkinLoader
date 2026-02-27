@@ -10,7 +10,7 @@ import java.io.*;
 public class SimpleSkinSwapperConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static SimpleSkinSwapperConfig instance;
+    private static volatile SimpleSkinSwapperConfig instance;
 
     // Config fields
     public boolean serverCommandEnabled = false;

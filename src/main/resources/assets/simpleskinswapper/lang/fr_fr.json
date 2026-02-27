@@ -3,6 +3,7 @@
 	"simpleskinswapper.screen.carousel.title": "Skin Swapper",
 	"simpleskinswapper.screen.carousel.apply": "Appliquer",
 	"simpleskinswapper.screen.carousel.close": "Fermer",
+	"simpleskinswapper.screen.carousel.open_folder": "Ouvrir le dossier",
 	"simpleskinswapper.screen.carousel.no_skins": "Aucun skin trouvé. Ajoutez des fichiers PNG dans .minecraft/skins/",
 	"simpleskinswapper.screen.carousel.skin_type.classic": "Classique",
 	"simpleskinswapper.screen.carousel.skin_type.slim": "Mince",
@@ -12,6 +13,7 @@
 	"simpleskinswapper.config.server_command.tooltip": "Commande envoyée au serveur lors de l'application d'un skin.",
 	"simpleskinswapper.config.server_command_enabled": "Activer la commande serveur",
 	"simpleskinswapper.config.server_command_enabled.tooltip": "Envoie une commande au serveur lors de l'application d'un skin.",
+	"simpleskinswapper.config.save": "Sauvegarder",
 
 	"simpleskinswapper.message.applying": "Application du skin...",
 	"simpleskinswapper.message.success": "Skin appliqué avec succès !",

@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 public class ConfigScreen extends Screen {
@@ -50,7 +51,7 @@ public class ConfigScreen extends Screen {
 
         // Save button
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Save"),
+                Text.translatable("simpleskinswapper.config.save"),
                 button -> {
                     save();
                     this.client.setScreen(parent);
@@ -60,7 +61,7 @@ public class ConfigScreen extends Screen {
 
         // Cancel button
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Cancel"),
+                ScreenTexts.CANCEL,
                 button -> this.client.setScreen(parent))
                 .dimensions(centerX + 5, this.height - 30, 95, 20)
                 .build());

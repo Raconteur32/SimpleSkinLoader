@@ -60,8 +60,8 @@ public class SkinEntry {
         textureLoading = true;
 
         String key = "skin/entry_" + file.getName()
-                .replaceAll("[^a-z0-9_/.-]", "_")
-                .toLowerCase();
+                .toLowerCase()
+                .replaceAll("[^a-z0-9_/.-]", "_");
 
         SkinUtils.loadSkinTextureAsync(file, key, id -> {
             this.textureId = id;

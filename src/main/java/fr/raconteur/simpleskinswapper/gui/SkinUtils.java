@@ -87,8 +87,7 @@ public class SkinUtils {
             }
         }
 
-        // Strip alpha from base layers (make them fully opaque)
-        // Head base (0,0,8,8) → strip
+        // Strip alpha from base layers
         stripAlpha(dst, 0, 0, 32, 16);
 
         // Mirror right leg → left leg (16,48)

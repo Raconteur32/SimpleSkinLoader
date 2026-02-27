@@ -20,12 +20,12 @@ public class MixinClientPlayNetworkHandler {
 
     @Inject(method = "onPlayerList", at = @At("TAIL"))
     private void simpleskinswapper$afterPlayerList(PlayerListS2CPacket packet, CallbackInfo ci) {
-        if (SkinChangeManager.pendingCommandTextureValue == null) return;
+        String pendingTextureValue = SkinChangeManager.pendingCommandTextureValue;
+        if (pendingTextureValue == null) return;
 
         ClientPlayerEntity localPlayer = MinecraftClient.getInstance().player;
         if (localPlayer == null) return;
 
-        // Check whether this packet concerns the local player
         boolean localPlayerInPacket = false;
         for (PlayerListS2CPacket.Entry entry : packet.getEntries()) {
             if (entry.profileId().equals(localPlayer.getUuid())) {
@@ -55,7 +55,7 @@ public class MixinClientPlayNetworkHandler {
             }
         }
 
-        if (SkinChangeManager.pendingCommandTextureValue.equals(currentTextureValue)) {
+        if (pendingTextureValue.equals(currentTextureValue)) {
             // Texture unchanged — server hasn't applied the skin yet, retry
             SimpleSkinSwapper.LOGGER.info("[SkinSwap] Texture unchanged after server command, retrying (attempt {}).",
                     SkinChangeManager.commandAttempt + 1);

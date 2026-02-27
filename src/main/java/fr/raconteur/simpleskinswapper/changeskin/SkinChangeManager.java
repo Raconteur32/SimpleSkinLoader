@@ -40,10 +40,6 @@ public class SkinChangeManager {
     /** Delays in seconds before attempt index 1 and 2. */
     private static final long[] RETRY_DELAYS_SECONDS = {5, 20};
 
-    // -----------------------------------------------------------------------
-    // Server command
-    // -----------------------------------------------------------------------
-
     public static void sendServerCommandIfNeeded() {
         sendServerCommandIfNeeded(0);
     }
