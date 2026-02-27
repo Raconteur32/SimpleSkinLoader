@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "simpleskinswapper",
+	"version": "${version}",
+	"name": "Simple Skin Swapper",
+	"description": "Easily swap your Minecraft skin from a carousel of local skin files.",
+	"authors": [
+		"Raconteur"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/project/simple-skin-swapper",
+		"sources": "https://github.com/Raconteur32/simpleskinswapper"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/simpleskinswapper/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"fr.raconteur.simpleskinswapper.SimpleSkinSwapper"
+		],
+		"client": [
+			"fr.raconteur.simpleskinswapper.SimpleSkinSwapperClient"
+		],
+		"modmenu": [
+			"fr.raconteur.simpleskinswapper.config.ModMenuCompat"
+		]
+	},
+	"mixins": [
+		"simpleskinswapper.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15",
+		"minecraft": ">=1.21.8",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": "*"
+	}
+}

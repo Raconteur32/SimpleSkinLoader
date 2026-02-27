@@ -1,0 +1,28 @@
+{
+	"simpleskinswapper.title": "Simple Skin Swapper",
+	"simpleskinswapper.screen.carousel.title": "Skin Swapper",
+	"simpleskinswapper.screen.carousel.apply": "Apply",
+	"simpleskinswapper.screen.carousel.close": "Close",
+	"simpleskinswapper.screen.carousel.no_skins": "No skins found. Add PNG files to .minecraft/skins/",
+	"simpleskinswapper.screen.carousel.skin_type.classic": "Classic",
+	"simpleskinswapper.screen.carousel.skin_type.slim": "Slim",
+
+	"simpleskinswapper.config.title": "Simple Skin Swapper Config",
+	"simpleskinswapper.config.server_command": "Server Skin Command",
+	"simpleskinswapper.config.server_command.tooltip": "Command sent to the server when applying a skin.",
+	"simpleskinswapper.config.server_command_enabled": "Enable Server Command",
+	"simpleskinswapper.config.server_command_enabled.tooltip": "Send a command to the server when applying a skin.",
+
+	"simpleskinswapper.message.applying": "Applying skin...",
+	"simpleskinswapper.message.success": "Skin applied successfully!",
+	"simpleskinswapper.message.error": "Failed to apply skin: %s",
+	"simpleskinswapper.message.swap_in_progress": "A skin swap is already in progress.",
+	"simpleskinswapper.message.reconnect": "Skin uploaded to Mojang. Reconnect to the server to see the change.",
+	"simpleskinswapper.message.command_pending": "Skin command sent to the server...",
+	"simpleskinswapper.message.command_retry": "Skin not yet updated on the server, retrying in %ss (attempt %s/%s)...",
+	"simpleskinswapper.message.command_success": "Skin successfully updated on the server!",
+	"simpleskinswapper.message.command_give_up": "Skin update failed after multiple attempts. Please try again later.",
+	"simpleskinswapper.message.command_timeout": "The skin command did not respond. The server may have an issue, or the mod may not be detecting the response. Try again later or reconnect to the server.",
+
+	"key.simpleskinswapper.open_carousel": "Open Skin Swapper"
+}
