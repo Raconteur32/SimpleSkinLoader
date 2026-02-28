@@ -95,11 +95,11 @@ public class SkinWheelScreen extends Screen {
             drawSectorPreview(context, cx, cy, i, n);
         }
 
-        // Selected skin name in the center
+        // Selected skin name above the wheel
         if (selectedIndex >= 0) {
             context.drawCenteredTextWithShadow(textRenderer,
                     Text.of(entries.get(selectedIndex).displayName),
-                    (int) cx, (int) cy - textRenderer.fontHeight / 2, COLOR_TEXT);
+                    (int) cx, (int) (cy - OUTER_RADIUS) - textRenderer.fontHeight - 6, COLOR_TEXT);
         }
 
         super.render(context, mouseX, mouseY, delta);
@@ -141,40 +141,58 @@ public class SkinWheelScreen extends Screen {
 
     /**
      * Fills a pie sector using context.fill() — one call per pixel column.
-     * Scans each column within the bounding circle and fills the y-range
-     * that falls within [startAngle, endAngle].
+     * Uses analytical cross-product tests to compute the y-range per column in O(1),
+     * giving O(r) total instead of O(r²) with atan2.
+     *
+     * For a sector [startAngle, endAngle] with span < 2π:
+     *   A point (dx, dy) is inside iff
+     *     dy*cos(S) - dx*sin(S) >= 0   (left of start ray)
+     *     dy*cos(E) - dx*sin(E) <= 0   (right of end ray)
+     * Each constraint is linear in dy → gives yLo / yHi directly.
      */
     private void fillSector(DrawContext context, float cx, float cy, float radius,
                             double startAngle, double endAngle, int color) {
-        int r = (int) Math.ceil(radius);
+        int r   = (int) Math.ceil(radius);
         int icx = (int) cx;
         int icy = (int) cy;
 
-        for (int dx = -r; dx <= r; dx++) {
-            int maxAbsDy = (int) Math.sqrt(Math.max(0.0, radius * radius - (double) dx * dx));
-            int segYMin = Integer.MAX_VALUE;
-            int segYMax = Integer.MIN_VALUE;
-
-            for (int dy = -maxAbsDy; dy <= maxAbsDy; dy++) {
-                if (dx == 0 && dy == 0) continue;
-                double angle = Math.atan2(dy, dx);
-                if (angleInSector(angle, startAngle, endAngle)) {
-                    if (dy < segYMin) segYMin = dy;
-                    if (dy > segYMax) segYMax = dy;
-                }
+        double span = ((endAngle - startAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        if (span >= 2 * Math.PI - 1e-9) {
+            // Full circle — skip angular tests entirely
+            for (int dx = -r; dx <= r; dx++) {
+                int dMax = (int) Math.sqrt(Math.max(0.0, radius * radius - (double) dx * dx));
+                if (dMax > 0) context.fill(icx + dx, icy - dMax, icx + dx + 1, icy + dMax + 1, color);
             }
+            return;
+        }
 
-            if (segYMin <= segYMax) {
-                context.fill(icx + dx, icy + segYMin, icx + dx + 1, icy + segYMax + 1, color);
+        double cosS = Math.cos(startAngle), sinS = Math.sin(startAngle);
+        double cosE = Math.cos(endAngle),   sinE = Math.sin(endAngle);
+
+        for (int dx = -r; dx <= r; dx++) {
+            double r2 = radius * radius - (double) dx * dx;
+            if (r2 <= 0) continue;
+            int dyMax = (int) Math.sqrt(r2);
+            double yLo = -dyMax, yHi = dyMax;
+
+            // Start-ray constraint: dy*cosS - dx*sinS >= 0  →  dy >= dx*sinS/cosS
+            double tS = (double) dx * sinS;
+            if      (cosS >  1e-9) yLo = Math.max(yLo, tS / cosS);
+            else if (cosS < -1e-9) yHi = Math.min(yHi, tS / cosS);
+            else if (tS   >  1e-9) continue; // column entirely outside start ray
+
+            // End-ray constraint: dy*cosE - dx*sinE <= 0  →  dy <= dx*sinE/cosE
+            double tE = (double) dx * sinE;
+            if      (cosE >  1e-9) yHi = Math.min(yHi, tE / cosE);
+            else if (cosE < -1e-9) yLo = Math.max(yLo, tE / cosE);
+            else if (tE   < -1e-9) continue; // column entirely outside end ray
+
+            int fillY1 = (int) Math.ceil(yLo);
+            int fillY2 = (int) Math.floor(yHi);
+            if (fillY1 <= fillY2) {
+                context.fill(icx + dx, icy + fillY1, icx + dx + 1, icy + fillY2 + 1, color);
             }
         }
-    }
-
-    /** Returns true if angle (atan2 range) falls within [startAngle, endAngle]. */
-    private static boolean angleInSector(double angle, double startAngle, double endAngle) {
-        double norm  = ((angle - startAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-        double range = ((endAngle - startAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-        return norm <= range;
     }
 
     private void drawSectorPreview(DrawContext context, float cx, float cy, int index, int n) {
@@ -208,7 +226,7 @@ public class SkinWheelScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) { applyAndClose(); return true; }
+        if (button == 0) { apply(); return true; }
         if (button == 1) { close(); return true; }
         return super.mouseClicked(mouseX, mouseY, button);
     }
@@ -216,13 +234,13 @@ public class SkinWheelScreen extends Screen {
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         if (SimpleSkinSwapperClient.openWheelKey.matchesKey(keyCode, scanCode)) {
-            applyAndClose();
+            close();
             return true;
         }
         return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
-    private void applyAndClose() {
+    private void apply() {
         if (selectedIndex >= 0 && selectedIndex < entries.size()) {
             SkinEntry entry = entries.get(selectedIndex);
             if (SkinSwapperState.beginSwap()) {
@@ -245,7 +263,6 @@ public class SkinWheelScreen extends Screen {
                             Text.translatable("simpleskinswapper.message.applying"), true);
             }
         }
-        close();
     }
 
     @Override
