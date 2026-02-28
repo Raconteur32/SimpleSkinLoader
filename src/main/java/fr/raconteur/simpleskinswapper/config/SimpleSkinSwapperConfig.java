@@ -6,15 +6,45 @@ import fr.raconteur.simpleskinswapper.SimpleSkinSwapper;
 import net.minecraft.client.MinecraftClient;
 
 import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SimpleSkinSwapperConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static volatile SimpleSkinSwapperConfig instance;
 
-    // Config fields
-    public boolean serverCommandEnabled = false;
-    public String serverCommand = "";
+    /**
+     * Per-server skin commands. Key = server address, value = command to send.
+     * An empty string means no command is configured for that server.
+     */
+    public Map<String, String> serverCommands = defaultServerCommands();
+
+    private static Map<String, String> defaultServerCommands() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("example-server.com", "/reloadskin");
+        return map;
+    }
+
+    /**
+     * Returns the command for the given server address, or null if the server is not registered.
+     */
+    public String getCommandForServer(String address) {
+        if (address == null) return null;
+        return serverCommands.get(address);
+    }
+
+    /**
+     * Adds an entry with an empty command for the server if not already registered,
+     * then persists the config.
+     */
+    public void registerServerIfAbsent(String address) {
+        if (address == null) return;
+        if (!serverCommands.containsKey(address)) {
+            serverCommands.put(address, "");
+            save();
+        }
+    }
 
     public static SimpleSkinSwapperConfig get() {
         if (instance == null) {
@@ -40,7 +70,13 @@ public class SimpleSkinSwapperConfig {
         File configFile = getConfigFile();
         if (configFile.exists()) {
             try (Reader reader = new FileReader(configFile)) {
-                return GSON.fromJson(reader, SimpleSkinSwapperConfig.class);
+                SimpleSkinSwapperConfig loaded = GSON.fromJson(reader, SimpleSkinSwapperConfig.class);
+                if (loaded != null) {
+                    if (loaded.serverCommands == null) {
+                        loaded.serverCommands = defaultServerCommands();
+                    }
+                    return loaded;
+                }
             } catch (IOException e) {
                 SimpleSkinSwapper.LOGGER.error("Failed to load config: {}", e.getMessage());
             }

@@ -1,9 +1,11 @@
 package fr.raconteur.simpleskinswapper;
 
+import fr.raconteur.simpleskinswapper.config.SimpleSkinSwapperConfig;
 import fr.raconteur.simpleskinswapper.gui.SkinCarouselScreen;
 import fr.raconteur.simpleskinswapper.gui.SkinWheelScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
@@ -30,6 +32,12 @@ public class SimpleSkinSwapperClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_UNKNOWN,
                 "simpleskinswapper.title"
         ));
+
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            if (client.getCurrentServerEntry() != null) {
+                SimpleSkinSwapperConfig.get().registerServerIfAbsent(client.getCurrentServerEntry().address);
+            }
+        });
 
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(client -> {
             TOTAL_TICK_DELTA++;

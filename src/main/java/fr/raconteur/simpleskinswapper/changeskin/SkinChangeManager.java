@@ -4,6 +4,7 @@ import fr.raconteur.simpleskinswapper.config.SimpleSkinSwapperConfig;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.text.Text;
 
 import java.util.concurrent.CompletableFuture;
@@ -76,16 +77,23 @@ public class SkinChangeManager {
 
         SimpleSkinSwapperConfig config = SimpleSkinSwapperConfig.get();
 
-        if (!config.serverCommandEnabled || config.serverCommand == null || config.serverCommand.isBlank()) {
-            // No command configured: ask the player to reconnect
-            if (client.getNetworkHandler() != null) {
-                client.execute(() -> {
-                    if (client.player != null) {
-                        client.player.sendMessage(
-                                Text.translatable("simpleskinswapper.message.reconnect"), false);
-                    }
-                });
-            }
+        ServerInfo serverInfo = client.getCurrentServerEntry();
+        if (serverInfo == null) {
+            // Singleplayer — no server command needed
+            SkinSwapperState.endSwap();
+            return;
+        }
+
+        final String serverAddress = serverInfo.address;
+        final String serverCmd = config.getCommandForServer(serverAddress);
+
+        if (serverCmd == null || serverCmd.isBlank()) {
+            client.execute(() -> {
+                if (client.player != null) {
+                    client.player.sendMessage(
+                            Text.translatable("simpleskinswapper.message.command_not_defined", serverAddress), false);
+                }
+            });
             SkinSwapperState.endSwap();
             return;
         }
@@ -95,7 +103,7 @@ public class SkinChangeManager {
             return;
         }
 
-        final String cmd = config.serverCommand.trim();
+        final String cmd = serverCmd.trim();
 
         client.execute(() -> {
             // Record the current texture value before sending the command
