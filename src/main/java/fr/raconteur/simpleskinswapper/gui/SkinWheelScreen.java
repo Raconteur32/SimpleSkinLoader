@@ -1,23 +1,15 @@
 package fr.raconteur.simpleskinswapper.gui;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import fr.raconteur.simpleskinswapper.SimpleSkinSwapper;
 import fr.raconteur.simpleskinswapper.SimpleSkinSwapperClient;
 import fr.raconteur.simpleskinswapper.changeskin.SkinChange;
 import fr.raconteur.simpleskinswapper.changeskin.SkinSwapperState;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.texture.TextureSetup;
-import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.text.Text;
-import org.joml.Matrix3x2f;
 
-import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,19 +22,14 @@ public class SkinWheelScreen extends Screen {
     private final List<SkinEntry> entries;
     private int selectedIndex = -1;
 
-    private static final int MAX_ENTRIES = 5;
-    /** Number of arc subdivisions for the outer curve of each sector. */
-    private static final int NUM_ARC_DIVISIONS = 12;
+    private static final int MAX_ENTRIES = 10;
     private static final float OUTER_RADIUS = 90.0f;
-    private static final float INNER_RADIUS = 0.0f; // triangular slices from center
-    /** Half-angle gap between adjacent sectors (radians). */
     private static final float GAP_HALF_ANGLE = (float) Math.toRadians(2.0);
 
     private static final int COLOR_SECTOR       = 0xCC1A2535;
     private static final int COLOR_SECTOR_HOVER = 0xEE2B5F9E;
     private static final int COLOR_CENTER_BG    = 0xBB0D1627;
     private static final int COLOR_TEXT         = 0xFFFFFFFF;
-    private static final int COLOR_TEXT_DIM     = 0xFFAAAAAA;
 
     public SkinWheelScreen(Screen parent) {
         super(Text.empty());
@@ -80,24 +67,31 @@ public class SkinWheelScreen extends Screen {
         if (n == 0) {
             context.drawCenteredTextWithShadow(textRenderer,
                     Text.translatable("simpleskinswapper.screen.carousel.no_skins"),
-                    (int) cx, (int) cy, COLOR_TEXT_DIM);
+                    (int) cx, (int) cy, COLOR_TEXT);
             super.render(context, mouseX, mouseY, delta);
             return;
         }
 
-        // Capture current 2D pose
-        Matrix3x2f pose = new Matrix3x2f(context.getMatrices());
-
-        // Draw pie sectors
+        // Draw pie sector backgrounds
         for (int i = 0; i < n; i++) {
-            drawSector(context, pose, cx, cy, i, n, i == selectedIndex);
+            drawSector(context, cx, cy, i, n, i == selectedIndex);
         }
 
-        // Center fill circle (drawn last = on top)
-        drawCircle(context, pose, cx, cy, 28);
+        // Center fill circle (on top of sectors)
+        fillCircle(context, cx, cy, 28, COLOR_CENTER_BG);
 
-        // Skin previews at sector midpoints
-        for (int i = 0; i < n; i++) {
+        // Skin previews — painter's order: top (smallest py) first
+        double sectorSize2 = 2 * Math.PI / n;
+        double angleOffset2 = -Math.PI / 2 - sectorSize2 / 2.0;
+        double previewDist2 = OUTER_RADIUS * 0.60;
+        Integer[] order = new Integer[n];
+        for (int i = 0; i < n; i++) order[i] = i;
+        Arrays.sort(order, (a, b) -> {
+            double pyA = cy + previewDist2 * Math.sin(angleOffset2 + sectorSize2 * a + sectorSize2 / 2.0);
+            double pyB = cy + previewDist2 * Math.sin(angleOffset2 + sectorSize2 * b + sectorSize2 / 2.0);
+            return Double.compare(pyA, pyB);
+        });
+        for (int i : order) {
             drawSectorPreview(context, cx, cy, i, n);
         }
 
@@ -131,28 +125,56 @@ public class SkinWheelScreen extends Screen {
         return (idx >= 0 && idx < n) ? idx : -1;
     }
 
-    private void drawSector(DrawContext context, Matrix3x2f pose,
-                            float cx, float cy, int index, int n, boolean hovered) {
+    private void drawSector(DrawContext context, float cx, float cy, int index, int n, boolean hovered) {
         double sectorSize = 2 * Math.PI / n;
         double angleOffset = -Math.PI / 2 - sectorSize / 2.0;
         double baseAngle = angleOffset + sectorSize * index;
-        float startAngle = (float) (baseAngle + GAP_HALF_ANGLE);
-        float endAngle   = (float) (baseAngle + sectorSize - GAP_HALF_ANGLE);
+        double startAngle = baseAngle + GAP_HALF_ANGLE;
+        double endAngle   = baseAngle + sectorSize - GAP_HALF_ANGLE;
         int color = hovered ? COLOR_SECTOR_HOVER : COLOR_SECTOR;
-
-        context.state.addSimpleElement(new PieSliceElement(
-                RenderPipelines.GUI, TextureSetup.empty(), pose,
-                cx, cy, INNER_RADIUS, OUTER_RADIUS,
-                startAngle, endAngle, color, null
-        ));
+        fillSector(context, cx, cy, OUTER_RADIUS, startAngle, endAngle, color);
     }
 
-    private void drawCircle(DrawContext context, Matrix3x2f pose, float cx, float cy, float radius) {
-        context.state.addSimpleElement(new PieSliceElement(
-                RenderPipelines.GUI, TextureSetup.empty(), pose,
-                cx, cy, 0f, radius,
-                0f, (float) (2 * Math.PI), COLOR_CENTER_BG, null
-        ));
+    private void fillCircle(DrawContext context, float cx, float cy, float radius, int color) {
+        fillSector(context, cx, cy, radius, 0, 2 * Math.PI, color);
+    }
+
+    /**
+     * Fills a pie sector using context.fill() — one call per pixel column.
+     * Scans each column within the bounding circle and fills the y-range
+     * that falls within [startAngle, endAngle].
+     */
+    private void fillSector(DrawContext context, float cx, float cy, float radius,
+                            double startAngle, double endAngle, int color) {
+        int r = (int) Math.ceil(radius);
+        int icx = (int) cx;
+        int icy = (int) cy;
+
+        for (int dx = -r; dx <= r; dx++) {
+            int maxAbsDy = (int) Math.sqrt(Math.max(0.0, radius * radius - (double) dx * dx));
+            int segYMin = Integer.MAX_VALUE;
+            int segYMax = Integer.MIN_VALUE;
+
+            for (int dy = -maxAbsDy; dy <= maxAbsDy; dy++) {
+                if (dx == 0 && dy == 0) continue;
+                double angle = Math.atan2(dy, dx);
+                if (angleInSector(angle, startAngle, endAngle)) {
+                    if (dy < segYMin) segYMin = dy;
+                    if (dy > segYMax) segYMax = dy;
+                }
+            }
+
+            if (segYMin <= segYMax) {
+                context.fill(icx + dx, icy + segYMin, icx + dx + 1, icy + segYMax + 1, color);
+            }
+        }
+    }
+
+    /** Returns true if angle (atan2 range) falls within [startAngle, endAngle]. */
+    private static boolean angleInSector(double angle, double startAngle, double endAngle) {
+        double norm  = ((angle - startAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        double range = ((endAngle - startAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        return norm <= range;
     }
 
     private void drawSectorPreview(DrawContext context, float cx, float cy, int index, int n) {
@@ -169,10 +191,6 @@ public class SkinWheelScreen extends Screen {
 
         int halfW = 16;
         int halfH = 24;
-        int x1 = px - halfW;
-        int y1 = py - halfH;
-        int x2 = px + halfW;
-        int y2 = py + halfH;
 
         if (entry.textureId != null) {
             SkinTextures skinTextures = new SkinTextures(
@@ -180,55 +198,7 @@ public class SkinWheelScreen extends Screen {
                     entry.skinType == SkinType.SLIM ? SkinTextures.Model.SLIM : SkinTextures.Model.WIDE,
                     true
             );
-            SkinRenderer.renderPlayer(context, x1, y1, x2, y2, halfH, skinTextures);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Pie slice render state — mirrors ToolBelt's BlitPieArc pattern
-    // -------------------------------------------------------------------------
-
-    record PieSliceElement(
-            RenderPipeline pipeline,
-            TextureSetup textureSetup,
-            Matrix3x2f pose,
-            float cx, float cy,
-            float radiusIn, float radiusOut,
-            float startAngle, float endAngle,
-            int color,
-            @Nullable ScreenRect scissorArea
-    ) implements SimpleGuiElementRenderState {
-
-        @Override
-        public void setupVertices(VertexConsumer consumer, float depth) {
-            float span = endAngle - startAngle;
-            int sections = Math.max(1, (int) Math.ceil(span / (2.5f / 360f)));
-            float slice = span / sections;
-
-            for (int i = 0; i < sections; i++) {
-                float a1 = startAngle + i * slice;
-                float a2 = startAngle + (i + 1) * slice;
-
-                float ix1 = cx + radiusIn  * (float) Math.cos(a1);
-                float iy1 = cy + radiusIn  * (float) Math.sin(a1);
-                float ox1 = cx + radiusOut * (float) Math.cos(a1);
-                float oy1 = cy + radiusOut * (float) Math.sin(a1);
-                float ix2 = cx + radiusIn  * (float) Math.cos(a2);
-                float iy2 = cy + radiusIn  * (float) Math.sin(a2);
-                float ox2 = cx + radiusOut * (float) Math.cos(a2);
-                float oy2 = cy + radiusOut * (float) Math.sin(a2);
-
-                // QUAD: outer1, inner1, inner2, outer2
-                consumer.vertex(pose, ox1, oy1, depth).color(color);
-                consumer.vertex(pose, ix1, iy1, depth).color(color);
-                consumer.vertex(pose, ix2, iy2, depth).color(color);
-                consumer.vertex(pose, ox2, oy2, depth).color(color);
-            }
-        }
-
-        @Override
-        public @Nullable ScreenRect bounds() {
-            return null;
+            SkinRenderer.renderPlayer(context, px - halfW, py - halfH, px + halfW, py + halfH, halfH, skinTextures);
         }
     }
 
