@@ -3,15 +3,16 @@
 	"id": "simpleskinswapper",
 	"version": "${version}",
 	"name": "Simple Skin Swapper",
-	"description": "Easily swap your Minecraft skin from a carousel of local skin files.",
+	"description": "Swap your skin on the fly with a radial wheel or carousel. Supports per-server commands for real-time updates without reconnecting.",
 	"authors": [
 		"Raconteur"
 	],
 	"contact": {
-		"homepage": "https://modrinth.com/project/simple-skin-swapper",
-		"sources": "https://github.com/Raconteur32/simpleskinswapper"
+		"homepage": "https://modrinth.com/mod/simpleskinswapper",
+		"sources": "https://github.com/Raconteur32/SimpleSkinLoader",
+		"issues": "https://github.com/Raconteur32/SimpleSkinLoader/issues"
 	},
-	"license": "CC0-1.0",
+	"license": "LGPL-3.0-or-later",
 	"icon": "assets/simpleskinswapper/icon.png",
 	"environment": "client",
 	"entrypoints": {
@@ -30,7 +31,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.15",
-		"minecraft": ">=1.21.8",
+		"minecraft": ">=1.21.8 <=1.21.11",
 		"fabric-api": "*"
 	},
 	"suggests": {
