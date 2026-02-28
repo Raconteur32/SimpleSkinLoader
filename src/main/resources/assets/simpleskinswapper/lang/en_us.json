@@ -26,5 +26,6 @@
 	"simpleskinswapper.message.command_give_up": "Skin update failed after multiple attempts. Please try again later.",
 	"simpleskinswapper.message.command_timeout": "The skin command did not respond. The server may have an issue, or the mod may not be detecting the response. Try again later or reconnect to the server.",
 
-	"key.simpleskinswapper.open_carousel": "Open Skin Swapper"
+	"key.simpleskinswapper.open_carousel": "Open Skin Swapper",
+	"key.simpleskinswapper.open_wheel": "Open Skin Wheel"
 }
