@@ -23,7 +23,7 @@ This mod is heavily inspired by two existing mods:
 
 Simple Skin Swapper was created because some aspects of SkinShuffle's design did not fit my workflow, and because the ability to trigger a server-side skin refresh command was missing. SkinShuffle's approach to quick skin switching also relies on keybinds rather than a dynamic radial wheel.
 
-> **This mod is not a replacement for SkinShuffle.** If SkinShuffle works for you, use it — it has more features and broader server compatibility. This mod exists to fill a specific gap.
+> **This mod is not a replacement for SkinShuffle.** If SkinShuffle works for you, use it — it still has more features. This mod exists to fill a specific gap (skin wheel and more focused features).
 
 ---
 
