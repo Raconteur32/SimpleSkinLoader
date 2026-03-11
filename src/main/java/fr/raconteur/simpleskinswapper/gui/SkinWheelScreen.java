@@ -1,20 +1,15 @@
 package fr.raconteur.simpleskinswapper.gui;
 
-import fr.raconteur.simpleskinswapper.SimpleSkinSwapper;
 import fr.raconteur.simpleskinswapper.SimpleSkinSwapperClient;
 import fr.raconteur.simpleskinswapper.changeskin.SkinChange;
 import fr.raconteur.simpleskinswapper.changeskin.SkinSwapperState;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.SkinTextures;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SkinWheelScreen extends Screen {
 
@@ -244,6 +239,7 @@ public class SkinWheelScreen extends Screen {
         if (selectedIndex >= 0 && selectedIndex < entries.size()) {
             SkinEntry entry = entries.get(selectedIndex);
             if (SkinSwapperState.beginSwap()) {
+                client.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 1.0f);
                 SkinChange.changeSkin(
                         entry.file,
                         entry.skinType,
@@ -275,28 +271,8 @@ public class SkinWheelScreen extends Screen {
     // -------------------------------------------------------------------------
 
     private static List<SkinEntry> loadWheelEntries() {
-        List<SkinEntry> all = SkinEntry.loadSkins();
-        if (all.isEmpty()) return Collections.emptyList();
-
-        Path orderFile = FabricLoader.getInstance().getGameDir().resolve("skins").resolve("order.txt");
-        if (!Files.exists(orderFile)) {
-            return new ArrayList<>(all.subList(0, Math.min(MAX_ENTRIES, all.size())));
-        }
-        try {
-            String content = Files.readString(orderFile).trim();
-            if (content.isEmpty()) {
-                return new ArrayList<>(all.subList(0, Math.min(MAX_ENTRIES, all.size())));
-            }
-            List<String> names = Arrays.stream(content.split(","))
-                    .map(String::trim).filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
-            Map<String, SkinEntry> byName = new LinkedHashMap<>();
-            all.forEach(e -> byName.put(e.file.getName(), e));
-            return names.stream().map(byName::get).filter(Objects::nonNull)
-                    .limit(MAX_ENTRIES).collect(Collectors.toList());
-        } catch (IOException e) {
-            SimpleSkinSwapper.LOGGER.warn("Could not read skin order for wheel: {}", e.getMessage());
-            return new ArrayList<>(all.subList(0, Math.min(MAX_ENTRIES, all.size())));
-        }
+        List<SkinEntry> ordered = SkinCarouselScreen.loadOrderedEntries();
+        if (ordered.size() <= MAX_ENTRIES) return ordered;
+        return new ArrayList<>(ordered.subList(0, MAX_ENTRIES));
     }
 }

@@ -1,7 +1,9 @@
 package fr.raconteur.simpleskinswapper;
 
 import fr.raconteur.simpleskinswapper.config.SimpleSkinSwapperConfig;
+import fr.raconteur.simpleskinswapper.networking.SkinShuffleCompat;
 import fr.raconteur.simpleskinswapper.gui.SkinCarouselScreen;
+import fr.raconteur.simpleskinswapper.gui.SkinShuffleImporter;
 import fr.raconteur.simpleskinswapper.gui.SkinWheelScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -19,6 +21,8 @@ public class SimpleSkinSwapperClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        SkinShuffleCompat.init();
+        SkinShuffleImporter.importIfNeeded();
         openCarouselKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.simpleskinswapper.open_carousel",
                 InputUtil.Type.KEYSYM,

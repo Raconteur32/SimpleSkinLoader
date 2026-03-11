@@ -295,7 +295,7 @@ public class SkinCarouselScreen extends SpruceScreen {
         }
     }
 
-    private List<SkinEntry> loadOrderedEntries() {
+    public static List<SkinEntry> loadOrderedEntries() {
         List<SkinEntry> allEntries = SkinEntry.loadSkins();
         Path orderFile = FabricLoader.getInstance().getGameDir().resolve("skins").resolve("order.txt");
 
@@ -346,7 +346,7 @@ public class SkinCarouselScreen extends SpruceScreen {
         }
     }
 
-    private void saveOrder(List<SkinEntry> entries, Path orderFile) {
+    static void saveOrder(List<SkinEntry> entries, Path orderFile) {
         String content = entries.stream()
                 .map(e -> e.file.getName())
                 .collect(Collectors.joining(","));

@@ -9,6 +9,7 @@
 - **Skin wheel** — a radial menu that displays up to 10 of your local skins at once, opened with a configurable keybind
 - **Skin carousel** — a classic list view for browsing skins more carefully, or for accessing skins that don't fit on the wheel when you have more than 10
 - **Server command support** — automatically send a server command after applying a skin so your skin refreshes in real time for other players, without needing to reconnect
+- **SkinShuffle Bridge compatibility** — when the [SkinShuffle Bridge](https://modrinth.com/plugin/skinshuffle) plugin is detected on the server, the mod uses the native skin refresh packet instead of a server command, for instant updates without any server configuration
 - **Per-server configuration** — each server can have its own command configured
 
 ---
@@ -29,8 +30,7 @@ Simple Skin Swapper was created because some aspects of SkinShuffle's design did
 ## Limitations
 
 - **Multiplayer only.** The mod is designed around the multiplayer experience and does not work in singleplayer worlds. Singleplayer support may be added in the future.
-- **Server command required for real-time updates.** For other players to see your new skin without you reconnecting, your server must have a command that triggers a skin refresh (e.g. `/reloadskin`). Without it, you will need to rejoin the server.
-- **Not compatible with the SkinShuffle Bridge plugin** for now. This may be added in the future.
+- **Server command required for real-time updates (without SkinShuffle Bridge).** If your server does not have the SkinShuffle Bridge plugin, other players will only see your new skin after you reconnect — unless your server has a command like `/reloadskin` configured.
 
 ---
 
@@ -47,7 +47,9 @@ Simple Skin Swapper was created because some aspects of SkinShuffle's design did
 
 Open the configuration screen via [ModMenu](https://modrinth.com/mod/modmenu) or from the carousel/wheel screen.
 
-For each server you connect to, you can set a command to send after applying a skin. The server entry is created automatically on first connection with an empty command. Leave it empty to disable the feature for that server.
+If the server does not have the SkinShuffle Bridge plugin, you can configure a command to send after applying a skin so other players see the change immediately. The server entry is created automatically on first connection with an empty command. Leave it empty to disable the feature for that server.
+
+> **Note:** This configuration is not needed if the server has the SkinShuffle Bridge plugin installed — the mod will detect it automatically and use the native skin refresh packet instead.
 
 **Config file location:** `.minecraft/config/simpleskinswapper.json`
 
