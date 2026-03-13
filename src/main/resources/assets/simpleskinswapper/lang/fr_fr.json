@@ -7,6 +7,7 @@
 	"simpleskinswapper.screen.carousel.no_skins": "Aucun skin trouvé. Ajoutez des fichiers PNG dans .minecraft/skins/",
 	"simpleskinswapper.screen.carousel.skin_type.classic": "Classique",
 	"simpleskinswapper.screen.carousel.skin_type.slim": "Mince",
+	"simpleskinswapper.screen.carousel.type": "Type : %s",
 
 	"simpleskinswapper.config.title": "Configuration Simple Skin Swapper",
 	"simpleskinswapper.config.server_command": "Commande serveur",

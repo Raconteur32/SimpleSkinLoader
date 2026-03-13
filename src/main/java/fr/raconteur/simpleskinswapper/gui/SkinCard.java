@@ -20,6 +20,7 @@ public class SkinCard extends SpruceContainerWidget {
     private final SkinCarouselScreen parent;
     private final SpruceButtonWidget leftArrow;
     private final SpruceButtonWidget rightArrow;
+    private final SpruceButtonWidget typeButton;
 
     public SkinCard(SkinCarouselScreen parent, SkinEntry entry, int width, int height) {
         super(Position.of(0, 0), width, height);
@@ -29,12 +30,20 @@ public class SkinCard extends SpruceContainerWidget {
         int arrowW = (width - BUTTON_MARGIN * 3) / 2;
 
         SpruceButtonWidget applyButton = new SpruceButtonWidget(
-                Position.of(BUTTON_MARGIN, height - BUTTON_HEIGHT * 2 - BUTTON_MARGIN * 2),
+                Position.of(BUTTON_MARGIN, height - BUTTON_HEIGHT * 3 - BUTTON_MARGIN * 3),
                 width - BUTTON_MARGIN * 2, BUTTON_HEIGHT,
                 Text.translatable("simpleskinswapper.screen.carousel.apply"),
                 button -> applySkin()
         );
         addChild(applyButton);
+
+        typeButton = new SpruceButtonWidget(
+                Position.of(BUTTON_MARGIN, height - BUTTON_HEIGHT * 2 - BUTTON_MARGIN * 2),
+                width - BUTTON_MARGIN * 2, BUTTON_HEIGHT,
+                typeLabel(),
+                button -> toggleType()
+        );
+        addChild(typeButton);
 
         leftArrow = new SpruceButtonWidget(
                 Position.of(BUTTON_MARGIN, height - BUTTON_HEIGHT - BUTTON_MARGIN),
@@ -60,6 +69,17 @@ public class SkinCard extends SpruceContainerWidget {
 
     SkinEntry getEntry() {
         return entry;
+    }
+
+    private Text typeLabel() {
+        return Text.translatable("simpleskinswapper.screen.carousel.type",
+                Text.translatable("simpleskinswapper.screen.carousel.skin_type." + entry.skinType.getMojangVariant()));
+    }
+
+    private void toggleType() {
+        entry.skinType = (entry.skinType == SkinType.CLASSIC) ? SkinType.SLIM : SkinType.CLASSIC;
+        SkinTypeStore.setType(entry.file.getName(), entry.skinType);
+        typeButton.setMessage(typeLabel());
     }
 
     private void applySkin() {
@@ -114,7 +134,7 @@ public class SkinCard extends SpruceContainerWidget {
         entry.ensureTextureLoaded();
 
         int previewTop = getY() + margin + client.textRenderer.fontHeight + 2;
-        int previewBottom = getY() + getHeight() - BUTTON_HEIGHT * 2 - BUTTON_MARGIN * 3;
+        int previewBottom = getY() + getHeight() - BUTTON_HEIGHT * 3 - BUTTON_MARGIN * 4;
         int previewLeft = getX() + 1;
         int previewRight = getX() + getWidth() - 1;
 

@@ -17,7 +17,7 @@ public class SkinEntry {
 
     public final File file;
     public final String displayName;
-    public final SkinType skinType;
+    public SkinType skinType;
 
     /** GPU texture identifier, null until loaded. */
     public Identifier textureId = null;
@@ -25,7 +25,8 @@ public class SkinEntry {
 
     public SkinEntry(File file) {
         this.file = file;
-        this.skinType = SkinUtils.detectSkinType(file);
+        SkinType detected = SkinUtils.detectSkinType(file);
+        this.skinType = SkinTypeStore.getType(file.getName(), detected);
 
         // Display name: filename without extension
         String name = file.getName();

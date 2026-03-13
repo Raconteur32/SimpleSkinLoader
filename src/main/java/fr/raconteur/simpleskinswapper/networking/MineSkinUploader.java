@@ -31,8 +31,9 @@ public class MineSkinUploader {
     @Nullable
     public static Property upload(File skinFile, String variant) {
         String fileHash = MineSkinCache.fileHash(skinFile);
-        if (fileHash != null) {
-            Property cached = MineSkinCache.get(fileHash);
+        String cacheKey = fileHash != null ? variant + "_" + fileHash : null;
+        if (cacheKey != null) {
+            Property cached = MineSkinCache.get(cacheKey);
             if (cached != null) return cached;
         }
 
@@ -65,7 +66,7 @@ public class MineSkinUploader {
             if (outcome.isEmpty()) return null;
 
             Property prop = outcome.get();
-            if (fileHash != null) MineSkinCache.put(fileHash, prop);
+            if (cacheKey != null) MineSkinCache.put(cacheKey, prop);
             return prop;
         } catch (Exception e) {
             SimpleSkinSwapper.LOGGER.warn("MineSkin: upload failed: {}", e.getMessage());
