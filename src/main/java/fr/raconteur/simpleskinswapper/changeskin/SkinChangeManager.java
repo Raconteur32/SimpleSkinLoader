@@ -110,8 +110,8 @@ public class SkinChangeManager {
             if (client.player != null) {
                 pendingCommandTextureValue = null;
                 for (PlayerListEntry listEntry : client.getNetworkHandler().getPlayerList()) {
-                    if (listEntry.getProfile().getId().equals(client.player.getUuid())) {
-                        Property textures = listEntry.getProfile().getProperties()
+                    if (listEntry.getProfile().id().equals(client.player.getUuid())) {
+                        Property textures = listEntry.getProfile().properties()
                                 .get("textures").stream().findFirst().orElse(null);
                         pendingCommandTextureValue = textures != null ? textures.value() : null;
                         break;

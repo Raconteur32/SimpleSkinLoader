@@ -4,7 +4,8 @@ import fr.raconteur.simpleskinswapper.config.SimpleSkinSwapperConfig;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.client.gui.widget.MultilineTextWidget;
+import net.minecraft.text.MutableText;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -31,17 +32,18 @@ public class ConfigScreen extends Screen {
         int startY = this.height / 4;
 
         // Title
-        this.addDrawableChild(new TextWidget(centerX - 150, 14, 300, 12, this.title, this.textRenderer)
-                .alignCenter());
+        this.addDrawableChild(new MultilineTextWidget(centerX - 150, 14, this.title, this.textRenderer)
+                .setMaxWidth(300)
+                .setCentered(true));
 
         if (currentServerAddress != null) {
             // Label: "Command for: example.com"
-            TextWidget label = new TextWidget(
-                    centerX - 150, startY, 300, 10,
+            this.addDrawableChild(new MultilineTextWidget(
+                    centerX - 150, startY,
                     Text.translatable("simpleskinswapper.config.server_command.for", currentServerAddress),
-                    this.textRenderer);
-            label.setTextColor(0xAAAAAA);
-            this.addDrawableChild(label);
+                    this.textRenderer)
+                    .setMaxWidth(300)
+                    .setCentered(true));
 
             // Command input field
             this.serverCommandField = new TextFieldWidget(
@@ -53,34 +55,16 @@ public class ConfigScreen extends Screen {
             this.addDrawableChild(this.serverCommandField);
         } else {
             // Not connected — explain the feature
-            this.addDrawableChild(new TextWidget(
-                    centerX - 150, startY, 300, 10,
-                    Text.translatable("simpleskinswapper.config.server_command.not_connected.line1"),
-                    this.textRenderer).alignCenter());
-
-            TextWidget line2 = new TextWidget(
-                    centerX - 150, startY + 12, 300, 10,
-                    Text.translatable("simpleskinswapper.config.server_command.not_connected.line2"),
-                    this.textRenderer);
-            line2.alignCenter();
-            line2.setTextColor(0xAAAAAA);
-            this.addDrawableChild(line2);
-
-            TextWidget line3 = new TextWidget(
-                    centerX - 150, startY + 24, 300, 10,
-                    Text.translatable("simpleskinswapper.config.server_command.not_connected.line3"),
-                    this.textRenderer);
-            line3.alignCenter();
-            line3.setTextColor(0xAAAAAA);
-            this.addDrawableChild(line3);
-
-            TextWidget line4 = new TextWidget(
-                    centerX - 150, startY + 36, 300, 10,
-                    Text.translatable("simpleskinswapper.config.server_command.not_connected.line4"),
-                    this.textRenderer);
-            line4.alignCenter();
-            line4.setTextColor(0xAAAAAA);
-            this.addDrawableChild(line4);
+            MutableText notConnectedText = Text.translatable("simpleskinswapper.config.server_command.not_connected.line1")
+                    .append("\n")
+                    .append(Text.translatable("simpleskinswapper.config.server_command.not_connected.line2"))
+                    .append("\n")
+                    .append(Text.translatable("simpleskinswapper.config.server_command.not_connected.line3"))
+                    .append("\n")
+                    .append(Text.translatable("simpleskinswapper.config.server_command.not_connected.line4"));
+            this.addDrawableChild(new MultilineTextWidget(centerX - 150, startY, notConnectedText, this.textRenderer)
+                    .setMaxWidth(300)
+                    .setCentered(true));
         }
 
         // Save button

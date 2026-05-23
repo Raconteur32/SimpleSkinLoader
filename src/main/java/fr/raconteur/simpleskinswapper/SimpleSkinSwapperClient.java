@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class SimpleSkinSwapperClient implements ClientModInitializer {
@@ -23,18 +24,19 @@ public class SimpleSkinSwapperClient implements ClientModInitializer {
     public void onInitializeClient() {
         SkinShuffleCompat.init();
         SkinShuffleImporter.importIfNeeded();
+        KeyBinding.Category category = KeyBinding.Category.create(Identifier.of("simpleskinswapper.title"));
         openCarouselKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.simpleskinswapper.open_carousel",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "simpleskinswapper.title"
+                category
         ));
 
         openWheelKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.simpleskinswapper.open_wheel",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "simpleskinswapper.title"
+                category
         ));
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

@@ -7,9 +7,10 @@ import dev.lambdaurora.spruceui.widget.container.SpruceContainerWidget;
 import fr.raconteur.simpleskinswapper.changeskin.SkinChange;
 import fr.raconteur.simpleskinswapper.changeskin.SkinSwapperState;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.SkinTextures;
+import net.minecraft.entity.player.PlayerSkinType;
+import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.text.Text;
+import net.minecraft.util.AssetInfo;
 
 public class SkinCard extends SpruceContainerWidget {
 
@@ -123,13 +124,12 @@ public class SkinCard extends SpruceContainerWidget {
 
         int margin = client.textRenderer.fontHeight / 2;
         int nameColor = this.active ? 0xFFFFFFFF : 0xFF808080;
-        ClickableWidget.drawScrollableText(
-                graphics.vanilla(), client.textRenderer,
-                Text.of(entry.displayName),
-                getX() + margin, getY() + margin,
-                getX() + getWidth() - margin, getY() + margin + client.textRenderer.fontHeight,
-                nameColor
-        );
+        int textWidth = client.textRenderer.getWidth(entry.displayName);
+        int textX = getX() + (getWidth() - textWidth) / 2;
+        int textY = getY() + margin;
+        graphics.vanilla().enableScissor(getX() + margin, textY, getX() + getWidth() - margin, textY + client.textRenderer.fontHeight);
+        graphics.vanilla().drawTextWithShadow(client.textRenderer, Text.of(entry.displayName), textX, textY, nameColor);
+        graphics.vanilla().disableScissor();
 
         entry.ensureTextureLoaded();
 
@@ -141,8 +141,8 @@ public class SkinCard extends SpruceContainerWidget {
         if (entry.textureId != null) {
             int size = (int) ((previewBottom - previewTop) * 0.5f);
             SkinTextures skinTextures = new SkinTextures(
-                    entry.textureId, null, null, null,
-                    entry.skinType == SkinType.SLIM ? SkinTextures.Model.SLIM : SkinTextures.Model.WIDE,
+                    new AssetInfo.SkinAssetInfo(entry.textureId, ""), null, null,
+                    entry.skinType == SkinType.SLIM ? PlayerSkinType.SLIM : PlayerSkinType.WIDE,
                     true
             );
             SkinRenderer.renderPlayer(graphics.vanilla(), previewLeft, previewTop, previewRight, previewBottom, size, skinTextures);

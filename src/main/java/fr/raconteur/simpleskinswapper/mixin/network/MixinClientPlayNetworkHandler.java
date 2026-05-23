@@ -47,8 +47,8 @@ public class MixinClientPlayNetworkHandler {
 
         String currentTextureValue = null;
         for (PlayerListEntry listEntry : networkHandler.getPlayerList()) {
-            if (listEntry.getProfile().getId().equals(localPlayer.getUuid())) {
-                Property textures = listEntry.getProfile().getProperties()
+            if (listEntry.getProfile().id().equals(localPlayer.getUuid())) {
+                Property textures = listEntry.getProfile().properties()
                         .get("textures").stream().findFirst().orElse(null);
                 currentTextureValue = textures != null ? textures.value() : null;
                 break;

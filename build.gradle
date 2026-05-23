@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
+	id 'fabric-loom' version '1.15-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -9,6 +9,7 @@ group = project.maven_group
 base {
 	archivesName = project.archives_base_name
 }
+
 
 loom {
 	runs {
@@ -33,7 +34,7 @@ repositories {
 	}
 	maven {
 		name = "Gegy"
-		url = "https://maven.gegy.dev"
+		url = uri("https://maven.gegy.dev")
 	}
 }
 
@@ -46,8 +47,8 @@ dependencies {
 	// Fabric API
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	// SpruceUI for enhanced GUI widgets
-	include modImplementation("dev.lambdaurora:spruceui:8.0.4+1.21.8")
+	include(modImplementation("dev.lambdaurora:spruceui:9.1.0+1.21.11"))
+	include("dev.yumi.mc.core:yumi-mc-foundation:1.0.0-beta.1+1.21.11")
 
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:14.0.0-beta.1"
@@ -85,7 +86,7 @@ java {
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+		rename { "${it}_${project.base.archivesName.get()}" }
 	}
 }
 

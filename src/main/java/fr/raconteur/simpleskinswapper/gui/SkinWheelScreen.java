@@ -3,11 +3,15 @@ package fr.raconteur.simpleskinswapper.gui;
 import fr.raconteur.simpleskinswapper.SimpleSkinSwapperClient;
 import fr.raconteur.simpleskinswapper.changeskin.SkinChange;
 import fr.raconteur.simpleskinswapper.changeskin.SkinSwapperState;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.SkinTextures;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.entity.player.PlayerSkinType;
+import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.AssetInfo;
 
 import java.util.*;
 
@@ -207,8 +211,8 @@ public class SkinWheelScreen extends Screen {
 
         if (entry.textureId != null) {
             SkinTextures skinTextures = new SkinTextures(
-                    entry.textureId, null, null, null,
-                    entry.skinType == SkinType.SLIM ? SkinTextures.Model.SLIM : SkinTextures.Model.WIDE,
+                    new AssetInfo.SkinAssetInfo(entry.textureId, ""), null, null,
+                    entry.skinType == SkinType.SLIM ? PlayerSkinType.SLIM : PlayerSkinType.WIDE,
                     true
             );
             SkinRenderer.renderPlayer(context, px - halfW, py - halfH, px + halfW, py + halfH, halfH, skinTextures);
@@ -220,19 +224,19 @@ public class SkinWheelScreen extends Screen {
     // -------------------------------------------------------------------------
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) { apply(); return true; }
-        if (button == 1) { close(); return true; }
-        return super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(Click click, boolean doubled) {
+        if (click.button() == 0) { apply(); return true; }
+        if (click.button() == 1) { close(); return true; }
+        return super.mouseClicked(click, doubled);
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if (SimpleSkinSwapperClient.openWheelKey.matchesKey(keyCode, scanCode)) {
+    public boolean keyReleased(KeyInput input) {
+        if (SimpleSkinSwapperClient.openWheelKey.matchesKey(input)) {
             close();
             return true;
         }
-        return super.keyReleased(keyCode, scanCode, modifiers);
+        return super.keyReleased(input);
     }
 
     private void apply() {

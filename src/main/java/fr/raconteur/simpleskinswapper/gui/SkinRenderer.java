@@ -4,8 +4,8 @@ import fr.raconteur.simpleskinswapper.SimpleSkinSwapperClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.render.state.special.EntityGuiElementRenderState;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.SkinTextures;
 import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -52,13 +52,13 @@ public class SkinRenderer {
         s.limbSwingAnimationProgress = MathHelper.sin(t) * 0.05F;
         s.limbSwingAmplitude = 0.1F;
         s.handSwingProgress = 0.0F;
-        s.handSwinging = false;
+        // s.handSwinging = false; old
         s.leaningPitch = 0.0F;
         s.limbAmplitudeInverse = 1.0F;
 
         // Skin
         s.skinTextures = skin;
-        s.name = "";
+        // s.name = ""; old
         s.playerName = null;
         s.spectator = false;
         s.hatVisible = true;
@@ -82,8 +82,8 @@ public class SkinRenderer {
         s.baby = false;
         s.flipUpsideDown = false;
         s.shaking = false;
-        s.hasOutline = false;
-        s.customName = null;
+        // s.hasOutline = false; old
+        // s.customName = null; old
         s.sleepingDirection = null;
         s.touchingWater = false;
         s.usingRiptide = false;
@@ -96,7 +96,7 @@ public class SkinRenderer {
         s.isSwimming = false;
         s.crossbowPullTime = 0.0F;
         s.itemUseTime = 0;
-        s.itemUseTimeLeft = 0;
+        // s.itemUseTimeLeft = 0; old
         s.stuckArrowCount = 0;
         s.stingerCount = 0;
         s.leftWingPitch = 0.0F;

@@ -6,6 +6,7 @@ import dev.lambdaurora.spruceui.screen.SpruceScreen;
 import dev.lambdaurora.spruceui.widget.SpruceButtonWidget;
 import fr.raconteur.simpleskinswapper.SimpleSkinSwapper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -91,7 +92,7 @@ public class SkinCarouselScreen extends SpruceScreen {
                         && p.toString().toLowerCase().endsWith(".png"));
         key.reset();
         if (changed) {
-            this.init(client, width, height);
+            this.init();
         }
     }
 
@@ -193,45 +194,45 @@ public class SkinCarouselScreen extends SpruceScreen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (getMaxCardIndex() > 0 && button == 0) {
+    public boolean mouseClicked(Click click, boolean doubled) {
+        if (getMaxCardIndex() > 0 && click.button() == 0) {
             int trackY = sbTrackY();
             int trackX = sbTrackX();
             int trackW = sbTrackW();
             int hitY1 = trackY - SCROLLBAR_HIT_PADDING;
             int hitY2 = trackY + SCROLLBAR_HEIGHT + SCROLLBAR_HIT_PADDING;
-            if (mouseY >= hitY1 && mouseY <= hitY2 && mouseX >= trackX && mouseX <= trackX + trackW) {
+            if (click.y() >= hitY1 && click.y() <= hitY2 && click.x() >= trackX && click.x() <= trackX + trackW) {
                 int thumbX = sbThumbX(cardIndex);
                 int thumbW = sbThumbW();
-                if (mouseX >= thumbX && mouseX <= thumbX + thumbW) {
-                    scrollbarDragOffsetX = (int) mouseX - thumbX;
+                if (click.x() >= thumbX && click.x() <= thumbX + thumbW) {
+                    scrollbarDragOffsetX = (int) click.x() - thumbX;
                 } else {
                     scrollbarDragOffsetX = thumbW / 2;
-                    updateScrollFromMouseX((int) mouseX);
+                    updateScrollFromMouseX((int) click.x());
                 }
                 isDraggingScrollbar = true;
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(click, doubled);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (isDraggingScrollbar && button == 0) {
-            updateScrollFromMouseX((int) mouseX);
+    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+        if (isDraggingScrollbar && click.button() == 0) {
+            updateScrollFromMouseX((int) click.x());
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        return super.mouseDragged(click, offsetX, offsetY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (isDraggingScrollbar && button == 0) {
+    public boolean mouseReleased(Click click) {
+        if (isDraggingScrollbar && click.button() == 0) {
             isDraggingScrollbar = false;
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(click);
     }
 
     private void updateScrollFromMouseX(int mouseX) {
